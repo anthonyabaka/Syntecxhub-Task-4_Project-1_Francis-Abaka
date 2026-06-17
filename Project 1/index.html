@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Engine Weather Dashboard</title>
+    <style>
+        /* ==========================================
+           1. CSS RESET & GLOBAL THEME DESIGN
+           ========================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: #f8fafc;
+        }
+
+        /* ==========================================
+           2. GLASSMORPHIC DASHBOARD WRAPPER
+           ========================================== */
+        .weather-wrapper {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.03);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ==========================================
+           3. DYNAMIC SEARCH SECTIONS LAYOUT
+           ========================================== */
+        .search-form {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(15, 23, 42, 0.6);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+        }
+
+        .search-input::placeholder {
+            color: #64748b;
+        }
+
+        .search-btn {
+            background: #ffffff;
+            color: #0f172a;
+            border: none;
+            border-radius: 12px;
+            padding: 0 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .search-btn:hover {
+            background: #f1f5f9;
+            transform: translateY(-1px);
+        }
+
+        .search-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* ==========================================
+           4. DATA OUTPUT INTERFACE CARD RENDER
+           ========================================== */
+        .weather-info {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .location-name {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: -0.025em;
+        }
+
+        .weather-desc {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            text-transform: capitalize;
+            margin-bottom: 16px;
+        }
+
+        .hero-metric-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .icon-container {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .weather-icon {
+            width: 70px;
+            height: 70px;
+            display: block;
+        }
+
+        .temp-display {
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+        }
+
+        /* Secondary Grid Stats Layout */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            background: rgba(15, 23, 42, 0.2);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 16px;
+        }
+
+        .stat-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-card .label {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .stat-card .value {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        /* Message Display Layer */
+        .status-msg {
+            text-align: center;
+            padding: 20px 0;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .status-msg.error {
+            color: #fca5a5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="weather-wrapper">
+        <form class="search-form" id="searchForm">
+            <input type="text" class="search-input" id="cityInput" placeholder="Enter city name..." required
+                autocomplete="off">
+            <button type="submit" class="search-btn">Search</button>
+        </form>
+
+        <div class="status-msg" id="statusMessage">Search for a city to view current atmospheric metrics.</div>
+
+        <div class="weather-info" id="weatherInfo">
+            <h2 class="location-name" id="locationName">---</h2>
+            <div class="weather-desc" id="weatherDesc">---</div>
+
+            <div class="hero-metric-box">
+                <div class="icon-container">
+                    <img src="" alt="Weather Condition" class="weather-icon" id="weatherIcon">
+                </div>
+                <div class="temp-display"><span id="tempValue">0</span>°C</div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="label">Humidity</span>
+                    <span class="value"><span id="humidityValue">0</span>%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ====================================================================
+           STEP 1: CONFIGURATION AREA
+           Paste your OpenWeatherMap API key between the single quotes below!
+           ==================================================================== */
+        const API_KEY = 'fca0db8ee5dc299a38b88d9ce0c4ab80';
+
+        /* ====================================================================
+           STEP 2: CORE INTERFACE LOGIC
+           ==================================================================== */
+        const searchForm = document.getElementById('searchForm');
+        const cityInput = document.getElementById('cityInput');
+        const statusMessage = document.getElementById('statusMessage');
+        const weatherInfo = document.getElementById('weatherInfo');
+
+        const locationName = document.getElementById('locationName');
+        const weatherDesc = document.getElementById('weatherDesc');
+        const weatherIcon = document.getElementById('weatherIcon');
+        const tempValue = document.getElementById('tempValue');
+        const humidityValue = document.getElementById('humidityValue');
+
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const cityName = cityInput.value.trim();
+            if (cityName) {
+                fetchWeatherData(cityName);
+            }
+        });
+
+        // Async API Execution Environment
+        async function fetchWeatherData(city) {
+            // Guard against unconfigured API Key tokens
+            if (API_KEY === 'YOUR_API_KEY_HERE' || API_KEY.trim() === '') {
+                renderState('error', 'Configuration Missing:<br>Please update the API_KEY variable at the top of the script tag with your actual OpenWeatherMap API Key token.');
+                return;
+            }
+
+            renderState('loading', 'Querying central weather databases...');
+
+            const cleanQuery = encodeURIComponent(city);
+            const endpoint = `https://api.openweathermap.org/data/2.5/weather?q=${cleanQuery}&units=metric&appid=${API_KEY}`;
+
+            try {
+                const response = await fetch(endpoint);
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('City destination not found. Please review spelling parameters and retry.');
+                    } else if (response.status === 401) {
+                        throw new Error('Unauthorized Engine Access: Your API key is invalid or not yet propagated.');
+                    } else {
+                        throw new Error(`Server execution fault encountered. Status Code: ${response.status}`);
+                    }
+                }
+
+                const data = await response.json();
+                populateWeatherUI(data);
+
+            } catch (error) {
+                renderState('error', error.message);
+            }
+        }
+
+        // DOM Rendering and UI Pipeline Updates
+        function populateWeatherUI(data) {
+            const { name, main, weather, sys } = data;
+
+            locationName.textContent = `${name}, ${sys.country}`;
+            weatherDesc.textContent = weather[0].description;
+            tempValue.textContent = Math.round(main.temp);
+            humidityValue.textContent = main.humidity;
+
+            const iconCode = weather[0].icon;
+            weatherIcon.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+            weatherIcon.alt = weather[0].main;
+
+            renderState('success');
+        }
+
+        function renderState(state, message = '') {
+            if (state === 'success') {
+                statusMessage.style.display = 'none';
+                weatherInfo.style.display = 'block';
+            } else {
+                weatherInfo.style.display = 'none';
+                statusMessage.style.display = 'block';
+                statusMessage.textContent = message;
+
+                if (state === 'error') {
+                    statusMessage.classList.add('error');
+                    statusMessage.innerHTML = message;
+                } else {
+                    statusMessage.classList.remove('error');
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
