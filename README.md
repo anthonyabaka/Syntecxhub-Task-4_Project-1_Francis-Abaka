@@ -1,4 +1,5 @@
 Description of the Code
+
 The Live Engine Weather Dashboard is a responsive, single-page web application built with clean HTML5, modern CSS3, and modern asynchronous vanilla JavaScript (ES6+). It connects directly to the OpenWeatherMap API to retrieve real-time atmospheric data for cities worldwide.
 
 Core Architectural Features:
@@ -13,6 +14,7 @@ State-Driven UI Pipeline: Employs a dedicated renderState() helper function to s
 Explicit HTTP Error Handling: Distinguishes between specific HTTP status codes (such as 404 Not Found for invalid city names, 401 Unauthorized for key issues, and generic 5xx server errors) to provide actionable feedback to users.
 
 Why I Should Be Proud of It
+
 Zero External Dependencies: You achieved a polished look and robust functionality using pure vanilla web technologies (HTML/CSS/JS) without depending on heavy frameworks like React or CSS libraries like Tailwind/Bootstrap.
 
 Production-Ready Error Handling: Instead of letting app failures crash silently or console log errors, your code gracefully guides the user through misconfigurations, non-existent locations, and network errors directly in the UI.
@@ -28,6 +30,7 @@ Defensive checks such as guarding against placeholder/unconfigured API keys prio
 Attention to UX Details: Smooth CSS keyframe animations (fadeIn), clear loading feedback messages, input auto-complete flags, and proper metric rounding (Math.round()) contribute to a seamless user experience.
 
 How It Represents My Capabilities
+
 Modern Front-End Fundamentals: Demonstrates strong mastery of basic web building blocks—DOM manipulation, modern CSS layouts (Flexbox/Grid), and standard HTML5 form structure.
 
 Asynchronous Network Programming: Demonstrates comfort with JavaScript event loops, Promise handling (async/await), native fetch, and working with dynamic RESTful JSON APIs.
